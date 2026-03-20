@@ -212,3 +212,6 @@ The automated coverage currently checks the most important local-first flows:
 ## Status
 
 Tinted Flow `1.0.0` is positioned as a complete v1 for single-user local-first planning. It is not intended to be a collaborative or cloud-synced product in this release.
+
+## Developer
+@opensourcejay
