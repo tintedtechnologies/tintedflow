@@ -442,19 +442,49 @@
 .column-inline-add-icon {
   display: inline-grid;
   place-items: center;
-  width: 1.15rem;
-  height: 1.15rem;
-  border-radius: 999px;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 0.45rem;
   background: var(--brand-green);
   color: #eff8f1;
-  font-size: 0.9rem;
-  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(239, 248, 241, 0.14);
+}
+
+.column-inline-add-icon svg {
+  width: 0.8rem;
+  height: 0.8rem;
 }
 
 .sidebar-icon-action svg,
 .icon-action svg {
   width: 0.95rem;
   height: 0.95rem;
+}
+
+.expand-card-action {
+  border-color: rgba(31, 138, 58, 0.16);
+  background: rgba(31, 138, 58, 0.08);
+  color: var(--brand-green);
+}
+
+.expand-card-action:hover,
+.expand-card-action:focus-visible {
+  border-color: rgba(31, 138, 58, 0.28);
+  background: rgba(31, 138, 58, 0.14);
+  color: #145d27;
+}
+
+.app-shell[data-theme='dark'] .expand-card-action {
+  border-color: rgba(49, 194, 75, 0.24);
+  background: rgba(49, 194, 75, 0.1);
+  color: #bdecc7;
+}
+
+.app-shell[data-theme='dark'] .expand-card-action:hover,
+.app-shell[data-theme='dark'] .expand-card-action:focus-visible {
+  border-color: rgba(49, 194, 75, 0.36);
+  background: rgba(49, 194, 75, 0.18);
+  color: #ecfaef;
 }
 
 .planner-content {

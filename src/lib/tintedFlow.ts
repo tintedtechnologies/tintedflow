@@ -180,9 +180,11 @@ export function getBoardColumnCount(board: Board): number {
 }
 
 export function renameBoard(board: Board, name: string): Board {
+  const hasVisibleCharacters = name.trim().length > 0
+
   return stampBoard({
     ...board,
-    name: name.trim() || 'Untitled Board',
+    name: hasVisibleCharacters ? name : 'Untitled Board',
   })
 }
 
@@ -200,13 +202,15 @@ export function renameColumn(board: Board, columnId: string, name: string): Boar
     return board
   }
 
+  const hasVisibleCharacters = name.trim().length > 0
+
   return stampBoard({
     ...board,
     columns: {
       ...board.columns,
       [columnId]: {
         ...column,
-        name: name.trim() || column.name,
+        name: hasVisibleCharacters ? name : '',
       },
     },
   })

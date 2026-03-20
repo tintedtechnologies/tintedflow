@@ -521,6 +521,8 @@ function App() {
   }
 
   function handleBoardNameKeyDown(boardId: string, event: ReactKeyboardEvent<HTMLInputElement>) {
+    event.stopPropagation()
+
     if (event.key === 'Enter') {
       event.preventDefault()
       commitBoardName(boardId)
@@ -978,6 +980,7 @@ function App() {
                           onBlur={() => commitBoardName(board.id)}
                           onChange={(event) => setEditingBoardName(event.target.value)}
                           onKeyDown={(event) => handleBoardNameKeyDown(board.id, event)}
+                          onPointerDown={(event) => event.stopPropagation()}
                           type="text"
                           value={editingBoardName}
                         />

@@ -28,6 +28,10 @@ type TaskCardViewProps = {
   onDelete: () => void
 }
 
+function stopEditorKeydown(event: ReactKeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  event.stopPropagation()
+}
+
 function TaskCardView({
   autoFocus,
   card,
@@ -51,10 +55,6 @@ function TaskCardView({
     ...buildCardStyle(card.color),
   } as CSSProperties
 
-  function stopEditorKeydown(event: ReactKeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    event.stopPropagation()
-  }
-
   useEffect(() => {
     if (autoFocus) {
       onAutoFocusHandled(card.id)
@@ -77,9 +77,9 @@ function TaskCardView({
         </div>
 
         <div className="card-actions">
-          <button aria-label={`Open ${card.title}`} className="icon-action" onClick={onExpand} type="button">
+          <button aria-label={`Open ${card.title}`} className="icon-action expand-card-action" onClick={onExpand} type="button">
             <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M6.75 4.5h4.5V6h-3v3H6.75V4.5Zm6 0h4.5V9h-1.5V6h-3V4.5Zm3 10.5h1.5v4.5h-4.5V18h3v-3Zm-9 0H8.25v3h3v1.5h-4.5V15Z" fill="currentColor" />
+              <path d="M8.25 6.75h9v1.5h-6.44l7.22 7.22-1.06 1.06-7.22-7.22v6.44h-1.5v-9Z" fill="currentColor" />
             </svg>
             <span className="sr-only">Open details</span>
           </button>
@@ -137,6 +137,29 @@ function BoardColumnView({
     },
   })
 
+  function commitColumnName(nextName: string) {
+    if (nextName !== column.name) {
+      onRenameColumn(nextName)
+    }
+  }
+
+  function handleColumnNameKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
+    stopEditorKeydown(event)
+
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      commitColumnName(event.currentTarget.value)
+      event.currentTarget.blur()
+      return
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.currentTarget.value = column.name
+      event.currentTarget.blur()
+    }
+  }
+
   return (
     <section className={isOver ? 'board-column is-over' : 'board-column'}>
       <div className="column-header">
@@ -144,9 +167,13 @@ function BoardColumnView({
           <input
             aria-label={`Rename ${column.name}`}
             className="column-name-input"
-            onChange={(event) => onRenameColumn(event.target.value)}
+            defaultValue={column.name}
+            key={`${column.id}:${column.name}`}
+            onBlur={(event) => commitColumnName(event.currentTarget.value)}
+            onKeyDown={handleColumnNameKeyDown}
+            onKeyDownCapture={stopEditorKeydown}
+            onPointerDown={(event) => event.stopPropagation()}
             type="text"
-            value={column.name}
           />
           <button
             aria-label={`Add card to ${column.name}`}
@@ -155,7 +182,9 @@ function BoardColumnView({
             type="button"
           >
             <span aria-hidden="true" className="column-inline-add-icon">
-              +
+              <svg viewBox="0 0 24 24">
+                <path d="M11.25 5.25h1.5v5.25H18v1.5h-5.25v5.25h-1.5V12H6v-1.5h5.25V5.25Z" fill="currentColor" />
+              </svg>
             </span>
             <span>Add task</span>
           </button>
