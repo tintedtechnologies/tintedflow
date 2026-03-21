@@ -18,7 +18,23 @@ async function dragLocatorToLocator(page: Page, sourceSelector: string, targetSe
 }
 
 test('creates boards, groups them, and persists the grouped view', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('./')
+
+  await page.evaluate(async () => {
+    window.localStorage.clear()
+
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(registrations.map((registration) => registration.unregister()))
+    }
+
+    if ('caches' in window) {
+      const cacheKeys = await window.caches.keys()
+      await Promise.all(cacheKeys.map((key) => window.caches.delete(key)))
+    }
+  })
+
+  await page.goto('./')
 
   await expect(page.getByRole('heading', { name: 'No boards yet' })).toBeVisible()
 

@@ -42,6 +42,7 @@ function SettingsModal({
   onClearAll,
 }: SettingsModalProps) {
   const dialogRef = useDialogFocusTrap({ isOpen })
+  const totalCards = appState.boards.reduce((count, board) => count + getBoardCardCount(board), 0)
 
   if (!isOpen) {
     return null
@@ -59,21 +60,45 @@ function SettingsModal({
         tabIndex={-1}
       >
         <div className="settings-header">
-          <div>
+          <div className="settings-header-copy">
             <p className="eyebrow">Settings</p>
             <h2 id="settings-title">Workspace configuration</h2>
+            <p className="panel-note settings-header-note">
+              Boards, appearance, and backups in one place.
+            </p>
           </div>
           <button aria-label="Close settings" className="ghost-action" onClick={onClose} type="button">
             Close
           </button>
         </div>
 
+        <div className="settings-overview" aria-label="Workspace summary">
+          <article className="settings-overview-card">
+            <span className="settings-overview-label">Boards</span>
+            <strong>{appState.boards.length}</strong>
+            <small>{selectedBoard ? `Active: ${selectedBoard.name}` : 'No board selected'}</small>
+          </article>
+          <article className="settings-overview-card">
+            <span className="settings-overview-label">Cards</span>
+            <strong>{totalCards}</strong>
+            <small>In this workspace</small>
+          </article>
+          <article className="settings-overview-card">
+            <span className="settings-overview-label">Storage</span>
+            <strong>{storageMode === 'memory' ? 'Session' : 'Local'}</strong>
+            <small>{latestReleaseVersion}</small>
+          </article>
+        </div>
+
         <div className="settings-grid">
-          <section className="settings-section">
+          <section className="settings-section settings-section-boards">
             <div className="panel-heading">
               <div>
                 <p className="eyebrow">Boards</p>
                 <h3>Saved workspaces</h3>
+                <p className="panel-note settings-section-note">
+                  Switch or remove saved boards.
+                </p>
               </div>
               <button className="ghost-action" onClick={onCreateBoard} type="button">
                 New board
@@ -120,11 +145,14 @@ function SettingsModal({
               <div>
                 <p className="eyebrow">Appearance</p>
                 <h3>Workspace appearance</h3>
+                <p className="panel-note settings-section-note">
+                  Pick the mode that reads best right now.
+                </p>
               </div>
             </div>
 
-            <div className="field-group">
-              <span>Theme</span>
+            <div className="field-group settings-theme-group">
+              <span>Theme mode</span>
               <div className="theme-toggle" role="group" aria-label="Theme mode">
                 <button
                   className={themeMode === 'light' ? 'active' : ''}
@@ -143,44 +171,85 @@ function SettingsModal({
               </div>
             </div>
 
-            <p className="panel-note">
-              Light mode is softer, dark mode keeps the same green accent, and column sizing lives on each board so layout changes happen where you are working.
-            </p>
+            <div className="settings-note-card">
+              <p className="panel-note">
+                Light mode is softer, dark mode keeps the same accent, and board column sizing stays in the workspace itself.
+              </p>
+            </div>
           </section>
 
-          <section className="settings-section">
+          <section className="settings-section settings-section-wide">
             <div className="panel-heading">
               <div>
                 <p className="eyebrow">Data</p>
                 <h3>Backup and recovery</h3>
+                <p className="panel-note settings-section-note">
+                  Export, restore, and review release notes.
+                </p>
               </div>
             </div>
 
-            <div className="settings-action-stack">
-              <button className="ghost-action" disabled={!selectedBoard || isExporting} onClick={onDownloadPdf} type="button">
-                {!selectedBoard ? 'Download PDF requires a board' : isExporting ? 'Preparing PDF...' : 'Download current board PDF'}
-              </button>
-              <button className="ghost-action" onClick={onExportData} type="button">
-                Export JSON backup
-              </button>
-              <button className="ghost-action" onClick={onImportData} type="button">
-                Import JSON backup
-              </button>
-              <button className="ghost-action" onClick={onViewLatestChangelog} type="button">
-                View changelog
-              </button>
-              <button className="ghost-action settings-danger" onClick={onClearAll} type="button">
-                Clear all boards and local cache
-              </button>
+            <div className="settings-tool-list">
+              <article className="settings-tool-row">
+                <div>
+                  <h4>Board PDF</h4>
+                  <p className="panel-note">Snapshot the selected board.</p>
+                </div>
+                <button className="ghost-action settings-compact-action" disabled={!selectedBoard || isExporting} onClick={onDownloadPdf} type="button">
+                  {!selectedBoard ? 'Board required' : isExporting ? 'Preparing PDF...' : 'Download PDF'}
+                </button>
+              </article>
+
+              <article className="settings-tool-row">
+                <div>
+                  <h4>JSON export</h4>
+                  <p className="panel-note">Save the workspace to a backup file.</p>
+                </div>
+                <button className="ghost-action settings-compact-action" onClick={onExportData} type="button">
+                  Export backup
+                </button>
+              </article>
+
+              <article className="settings-tool-row">
+                <div>
+                  <h4>JSON import</h4>
+                  <p className="panel-note">Restore a previously exported backup.</p>
+                </div>
+                <button className="ghost-action settings-compact-action" onClick={onImportData} type="button">
+                  Import backup
+                </button>
+              </article>
+
+              <article className="settings-tool-row">
+                <div>
+                  <h4>Release notes</h4>
+                  <p className="panel-note">See what changed in the latest version.</p>
+                </div>
+                <button className="ghost-action settings-compact-action" onClick={onViewLatestChangelog} type="button">
+                  View changelog
+                </button>
+              </article>
+
+              <article className="settings-tool-row danger">
+                <div>
+                  <h4>Reset workspace</h4>
+                  <p className="panel-note">Remove every board, clear local data, and return to the first-run welcome screen.</p>
+                </div>
+                <button className="ghost-action settings-danger settings-compact-action" onClick={onClearAll} type="button">
+                  Reset to welcome
+                </button>
+              </article>
             </div>
 
-            <p className="panel-note">
-              Data stays on this browser unless you export a JSON backup. PDF export is a snapshot of the selected board, not a recovery format.
-            </p>
-            <p className="panel-note">Latest release notes: {latestReleaseVersion}.</p>
-            <p className="panel-note">
-              Drag a board card onto another in the sidebar to group them under one sidebar entry. You will be asked to confirm first, and grouped child boards can be unmerged from the main view.
-            </p>
+            <div className="settings-note-stack">
+              <p className="panel-note">
+                Data stays on this browser unless you export a JSON backup. PDF export is a snapshot of the selected board, not a recovery format.
+              </p>
+              <p className="panel-note">Latest release notes: {latestReleaseVersion}.</p>
+              <p className="panel-note">
+                Drag a board card onto another in the sidebar to group them under one sidebar entry. You will be asked to confirm first, and grouped child boards can be unmerged from the main view.
+              </p>
+            </div>
             {storageMode === 'memory' ? (
               <p className="panel-note settings-warning">
                 Local storage is unavailable. Imports and edits will only last for this session until storage works again.

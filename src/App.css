@@ -2,6 +2,8 @@
   --brand-green: #1f8a3a;
   --brand-green-soft: rgba(31, 138, 58, 0.16);
   --board-column-min: 18.5rem;
+  display: flex;
+  flex-direction: column;
   min-height: 100svh;
   width: 100%;
   padding: 12px;
@@ -95,6 +97,21 @@
   font-size: 0.84rem;
 }
 
+.app-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding: 8px 12px 2px;
+}
+
+.app-footer-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .app-notice-stack {
   position: fixed;
   right: 12px;
@@ -111,6 +128,35 @@
   padding: 14px;
   border-radius: 16px;
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.14);
+}
+
+.orientation-hint {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(3, 7, 5, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.orientation-hint-card {
+  display: grid;
+  gap: 10px;
+  width: min(24rem, 100%);
+  padding: 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface-panel) 92%, transparent);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+  text-align: left;
+}
+
+.orientation-hint-card h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  line-height: 1.1;
 }
 
 .app-notice-card.offline {
@@ -254,6 +300,7 @@
 }
 
 .planner-layout {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: 15rem minmax(0, 1fr);
   gap: 12px;
@@ -332,6 +379,7 @@
   border-radius: 10px;
   background: var(--surface-subtle);
   cursor: grab;
+  touch-action: none;
 }
 
 .sidebar-board-card[data-board-depth='1'],
@@ -730,6 +778,7 @@
   position: relative;
   overflow: hidden;
   cursor: grab;
+  touch-action: none;
 }
 
 .app-shell[data-theme='light'] .task-card {
@@ -855,11 +904,18 @@
 }
 
 .settings-modal {
-  width: min(880px, 100%);
-  max-height: min(84svh, 920px);
+  width: min(820px, 100%);
+  max-height: min(86svh, 900px);
+  display: grid;
+  gap: 14px;
   overflow: auto;
-  padding: 22px;
-  border-radius: 8px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-panel) 96%, white 4%), var(--surface-panel)),
+    var(--surface-panel);
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.22);
 }
 
 .card-detail-modal {
@@ -929,11 +985,62 @@
   margin: 0;
 }
 
+.settings-header {
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.settings-header-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-header-note,
+.settings-section-note {
+  max-width: 34rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.settings-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-overview-card {
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface-subtle) 86%, transparent);
+}
+
+.settings-overview-label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-overview-card strong {
+  font-size: 0.98rem;
+  line-height: 1.15;
+}
+
+.settings-overview-card small {
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+}
+
 .settings-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 18px;
-  margin-top: 16px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 12px;
 }
 
 .settings-section,
@@ -942,13 +1049,92 @@
   gap: 14px;
 }
 
+.settings-section {
+  align-content: start;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-subtle) 82%, transparent);
+}
+
+.settings-section-wide {
+  grid-column: 1 / -1;
+}
+
+.settings-section-boards .panel-heading,
+.settings-section-wide .panel-heading {
+  align-items: flex-start;
+}
+
 .settings-action-stack {
   display: grid;
   gap: 10px;
 }
 
+.settings-tool-list,
+.settings-note-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.settings-tool-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  background: var(--surface-panel);
+}
+
+.settings-tool-row h4 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+}
+
+.settings-tool-row .ghost-action {
+  min-width: 9.5rem;
+  justify-content: center;
+}
+
+.settings-compact-action {
+  padding: 7px 10px;
+  font-size: 0.88rem;
+}
+
+.settings-tool-row.danger {
+  border-color: rgba(144, 36, 36, 0.16);
+}
+
+.app-shell[data-theme='dark'] .settings-tool-row.danger {
+  border-color: rgba(255, 151, 151, 0.18);
+}
+
+.settings-note-card {
+  padding: 11px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  background: var(--surface-panel);
+}
+
+.settings-note-card .panel-note,
+.settings-note-stack .panel-note,
+.settings-tool-row .panel-note,
+.settings-warning {
+  margin: 0;
+}
+
+.settings-theme-group {
+  gap: 8px;
+}
+
 .settings-warning {
   color: var(--text-primary);
+  padding: 10px 12px;
+  border: 1px solid rgba(31, 138, 58, 0.18);
+  border-radius: 14px;
+  background: rgba(31, 138, 58, 0.08);
 }
 
 .settings-danger {
@@ -964,14 +1150,17 @@
 .board-chip {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
-  padding: 6px;
-  border-radius: 6px;
-  background: var(--surface-subtle);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 9px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface-panel);
 }
 
 .board-chip.selected {
-  border-color: var(--brand-green-soft);
+  border-color: rgba(31, 138, 58, 0.28);
+  box-shadow: 0 0 0 3px rgba(31, 138, 58, 0.08);
 }
 
 .board-chip-main {
@@ -992,17 +1181,34 @@
 }
 
 .board-chip-main strong {
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .board-chip-main small {
+  color: var(--text-secondary);
   font-size: 0.72rem;
 }
 
 .board-chip-swatch {
-  width: 6px;
-  height: 28px;
+  width: 8px;
+  height: 30px;
   border-radius: 999px;
+}
+
+.board-list {
+  max-height: min(20rem, 40svh);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.settings-modal .eyebrow {
+  margin-bottom: 4px;
+  letter-spacing: 0.16em;
+}
+
+.settings-modal .panel-note {
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .field-group span:first-child {
@@ -1143,9 +1349,11 @@ textarea:focus-visible {
     top: 88px;
     left: 12px;
     bottom: 12px;
-    width: min(20rem, calc(100vw - 24px));
+    width: min(18.5rem, calc(100vw - 56px));
+    max-width: calc(100vw - 56px);
     z-index: 25;
     grid-template-rows: auto 1fr;
+    overflow: hidden;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
     transition:
       transform 180ms ease,
@@ -1172,12 +1380,12 @@ textarea:focus-visible {
   }
 
   .planner-sidebar-list {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(14rem, 18rem);
-    overflow-x: auto;
-    overflow-y: hidden;
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding-bottom: 2px;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: y proximity;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1196,7 +1404,12 @@ textarea:focus-visible {
 
   .settings-modal {
     width: min(720px, 100%);
-    padding: 18px;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .settings-overview {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .card-detail-modal {
@@ -1215,9 +1428,17 @@ textarea:focus-visible {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  .orientation-hint {
+    padding: 12px;
+  }
+
+  .orientation-hint-card {
+    width: min(22rem, 100%);
+    padding: 16px;
+  }
+
   .app-shell {
-    --board-column-min: min(86vw, 18rem);
     padding: 8px;
   }
 
@@ -1227,10 +1448,20 @@ textarea:focus-visible {
     padding: 12px;
   }
 
+  .app-footer {
+    margin-top: 10px;
+    padding-inline: 6px;
+  }
+
+  .app-footer-copy {
+    font-size: 0.7rem;
+  }
+
   .app-notice-stack {
     right: 8px;
     left: 8px;
     bottom: 8px;
+    z-index: 23;
   }
 
   .app-notice-actions {
@@ -1253,6 +1484,14 @@ textarea:focus-visible {
   .column-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .settings-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding-bottom: 10px;
+    background: linear-gradient(180deg, var(--surface-panel) 84%, rgba(0, 0, 0, 0));
   }
 
   .topbar-actions {
@@ -1303,11 +1542,14 @@ textarea:focus-visible {
   }
 
   .planner-sidebar {
+    top: 8px;
     gap: 10px;
     left: 8px;
-    right: 8px;
+    right: auto;
     bottom: 8px;
-    width: auto;
+    width: min(17.5rem, calc(100vw - 56px));
+    max-width: calc(100vw - 56px);
+    border-radius: 16px;
   }
 
   .planner-sidebar-header {
@@ -1319,7 +1561,8 @@ textarea:focus-visible {
     grid-auto-flow: row;
     grid-auto-columns: auto;
     grid-template-columns: 1fr;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding-bottom: 0;
   }
 
@@ -1345,12 +1588,18 @@ textarea:focus-visible {
   }
 
   .board-grid {
+    grid-template-columns: 1fr !important;
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
     gap: 10px;
     padding-bottom: 4px;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
   }
 
   .board-column {
-    min-height: 17rem;
+    min-height: 16rem;
     padding: 9px;
   }
 
@@ -1383,10 +1632,61 @@ textarea:focus-visible {
     padding: 10px;
   }
 
+  .sidebar-backdrop {
+    background: rgba(0, 0, 0, 0.24);
+  }
+
   .settings-modal {
     width: 100%;
     max-height: min(92svh, 920px);
-    padding: 16px;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .settings-section {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .settings-overview {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .settings-overview-card {
+    padding: 10px;
+  }
+
+  .settings-overview-card strong {
+    font-size: 0.9rem;
+  }
+
+  .settings-overview-card small {
+    font-size: 0.68rem;
+  }
+
+  .settings-tool-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .settings-tool-row .ghost-action,
+  .board-chip-delete {
+    width: 100%;
+  }
+
+  .settings-tool-row .ghost-action {
+    min-width: 8.25rem;
+  }
+
+  .settings-note-stack {
+    gap: 6px;
+  }
+
+  .board-list {
+    max-height: none;
   }
 
   .card-detail-modal {
@@ -1422,5 +1722,65 @@ textarea:focus-visible {
 
   .swatch-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .settings-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-tool-row {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-tool-row .ghost-action {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .board-chip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .app-shell[data-phone-portrait='true'] .app-topbar,
+  .app-shell[data-phone-portrait='true'] .planner-layout {
+    filter: blur(3px);
+    opacity: 0.28;
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: landscape) {
+  .planner-layout,
+  .app-shell[data-sidebar-open='false'] .planner-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-content {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .board-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .board-column {
+    min-height: min(16rem, 34vh);
+  }
+
+  .empty-workspace {
+    min-height: auto;
+    align-content: start;
+    justify-items: stretch;
+  }
+
+  .empty-workspace-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -41,13 +41,18 @@ export function persistAppState(state: PersistedState): boolean {
   }
 }
 
-export function clearPersistedAppState(): boolean {
+export function clearPersistedAppState(extraKeys: string[] = []): boolean {
   if (typeof window === 'undefined') {
     return false
   }
 
   try {
     window.localStorage.removeItem(APP_STORAGE_KEY)
+
+    for (const key of extraKeys) {
+      window.localStorage.removeItem(key)
+    }
+
     return true
   } catch {
     return false

@@ -2,7 +2,8 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   closestCorners,
   useSensor,
@@ -92,6 +93,8 @@ function App() {
   const [initialPersistence] = useState(() => loadPersistedAppState())
   const [appState, setAppState] = useState(initialPersistence.state)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isPhonePortrait, setIsPhonePortrait] = useState(false)
+  const [isSmallLandscape, setIsSmallLandscape] = useState(false)
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [showInstallPrompt, setShowInstallPrompt] = useState(false)
   const [offlineNotice, setOfflineNotice] = useState<OfflineNotice | null>(null)
@@ -122,6 +125,8 @@ function App() {
     () => getVisibleBoards(appState.boards, selectedRootBoardId),
     [appState.boards, selectedRootBoardId],
   )
+  const isEmptyWorkspace = visibleBoards.length === 0
+  const shouldHideSidebarForEmptyLandscape = isEmptyWorkspace && isSmallLandscape
 
   const activeCard = useMemo(() => {
     if (!activeCardTarget) {
@@ -158,9 +163,15 @@ function App() {
   }, [expandedBoard, expandedCardTarget])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 140,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -168,9 +179,15 @@ function App() {
     }),
   )
   const boardSensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 140,
+        tolerance: 8,
       },
     }),
   )
@@ -231,7 +248,13 @@ function App() {
 
   useEffect(() => {
     function syncSidebarWithViewport() {
-      if (window.innerWidth <= 960) {
+      const nextIsPhonePortrait = window.matchMedia('(max-width: 900px) and (orientation: portrait)').matches
+      const nextIsSmallLandscape = window.matchMedia('(max-width: 1024px) and (orientation: landscape)').matches
+
+      setIsPhonePortrait(nextIsPhonePortrait)
+      setIsSmallLandscape(nextIsSmallLandscape)
+
+      if (window.innerWidth <= 960 || nextIsPhonePortrait || (isEmptyWorkspace && nextIsSmallLandscape)) {
         setIsSidebarOpen(false)
         return
       }
@@ -242,7 +265,7 @@ function App() {
     syncSidebarWithViewport()
     window.addEventListener('resize', syncSidebarWithViewport)
     return () => window.removeEventListener('resize', syncSidebarWithViewport)
-  }, [])
+  }, [isEmptyWorkspace])
 
   useEffect(() => {
     function handleBeforeInstallPrompt(event: Event) {
@@ -402,7 +425,10 @@ function App() {
       return
     }
 
-    const didClearLocalCache = storageMode === 'local' ? clearPersistedAppState() : true
+    const didClearLocalCache =
+      storageMode === 'local'
+        ? clearPersistedAppState([installPromptDismissedKey, OFFLINE_CACHE_VERSION_KEY])
+        : true
 
     if (storageMode === 'local') {
       skipNextPersistRef.current = didClearLocalCache
@@ -415,16 +441,19 @@ function App() {
     setPendingFocusTarget(null)
     setActiveCardTarget(null)
     setActiveCardSize(null)
+    setInstallPromptEvent(null)
+    setShowInstallPrompt(false)
+    setOfflineNotice(null)
     setIsSettingsOpen(false)
 
     if (storageMode === 'local' && !didClearLocalCache) {
       setStorageMode('memory')
-      setLiveMessage('Workspace cleared. Local storage is unavailable, so changes are session-only.')
+      setLiveMessage('Workspace reset. Local storage is unavailable, so the fresh start is session-only.')
       return
     }
 
     setStorageMode(storageMode)
-    setLiveMessage('Workspace cleared.')
+    setLiveMessage('Workspace reset to the welcome screen.')
   }
 
   function handleGroupBoards(sourceBoardId: string, targetBoardId: string) {
@@ -813,7 +842,13 @@ function App() {
   }
 
   return (
-    <div className="app-shell" data-sidebar-open={isSidebarOpen} data-theme={appState.themeMode}>
+    <div
+      className="app-shell"
+      data-empty-workspace={isEmptyWorkspace}
+      data-phone-portrait={isPhonePortrait}
+      data-sidebar-open={isSidebarOpen}
+      data-theme={appState.themeMode}
+    >
       <input
         accept="application/json,.json"
         className="sr-only"
@@ -885,22 +920,36 @@ function App() {
         </section>
       ) : null}
 
+      {isPhonePortrait ? (
+        <section aria-label="Rotate device hint" className="orientation-hint" role="status">
+          <div className="orientation-hint-card">
+            <p className="eyebrow">Phone view</p>
+            <h2>Rotate to landscape</h2>
+            <p className="panel-note">
+              Tinted Flow is tuned for landscape on phones so the board and welcome state have enough room.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       <header className="app-topbar">
         <div className="topbar-leading">
-          <button
-            aria-controls="planner-sidebar"
-            aria-expanded={isSidebarOpen}
-            aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-            className="sidebar-toggle-button"
-            onClick={toggleSidebar}
-            type="button"
-          >
-            <span aria-hidden="true" className="sidebar-toggle-lines">
-              <span />
-              <span />
-              <span />
-            </span>
-          </button>
+          {shouldHideSidebarForEmptyLandscape ? null : (
+            <button
+              aria-controls="planner-sidebar"
+              aria-expanded={isSidebarOpen}
+              aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              className="sidebar-toggle-button"
+              onClick={toggleSidebar}
+              type="button"
+            >
+              <span aria-hidden="true" className="sidebar-toggle-lines">
+                <span />
+                <span />
+                <span />
+              </span>
+            </button>
+          )}
 
           <div className="app-branding">
             <p className="app-wordmark">
@@ -920,36 +969,40 @@ function App() {
         </div>
       </header>
 
-      {isSidebarOpen ? <button aria-label="Close sidebar" className="sidebar-backdrop" onClick={toggleSidebar} type="button" /> : null}
+      {isSidebarOpen && !shouldHideSidebarForEmptyLandscape ? (
+        <button aria-label="Close sidebar" className="sidebar-backdrop" onClick={toggleSidebar} type="button" />
+      ) : null}
 
       <main className="planner-layout">
-        <aside className="planner-sidebar" id="planner-sidebar">
-          <div className="planner-sidebar-header">
-            <p className="eyebrow">Boards</p>
-            <button className="sidebar-primary-action" onClick={handleCreateBoard} type="button">
-              New board
-            </button>
-          </div>
-
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleBoardDragEnd} sensors={boardSensors}>
-            <div className="planner-sidebar-list" role="list" aria-label="Saved boards">
-              {sidebarBoards.map((board) => (
-                <SidebarBoardItem
-                  board={board}
-                  canDelete={true}
-                  depth={0}
-                  isSelected={board.id === selectedRootBoardId}
-                  key={board.id}
-                  onDelete={handleDeleteBoard}
-                  onSelect={handleSelectBoard}
-                />
-              ))}
+        {shouldHideSidebarForEmptyLandscape ? null : (
+          <aside className="planner-sidebar" id="planner-sidebar">
+            <div className="planner-sidebar-header">
+              <p className="eyebrow">Boards</p>
+              <button className="sidebar-primary-action" onClick={handleCreateBoard} type="button">
+                New board
+              </button>
             </div>
-          </DndContext>
-        </aside>
+
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleBoardDragEnd} sensors={boardSensors}>
+              <div className="planner-sidebar-list" role="list" aria-label="Saved boards">
+                {sidebarBoards.map((board) => (
+                  <SidebarBoardItem
+                    board={board}
+                    canDelete={true}
+                    depth={0}
+                    isSelected={board.id === selectedRootBoardId}
+                    key={board.id}
+                    onDelete={handleDeleteBoard}
+                    onSelect={handleSelectBoard}
+                  />
+                ))}
+              </div>
+            </DndContext>
+          </aside>
+        )}
 
         <section className="planner-content">
-          {visibleBoards.length === 0 ? (
+          {isEmptyWorkspace ? (
             <section className="board-surface empty-workspace" ref={boardExportRef}>
               <p className="eyebrow">Workspace</p>
               <h2>No boards yet</h2>
@@ -1137,6 +1190,10 @@ function App() {
           handleUpdateCard(expandedBoard.id, cardId, updates)
         }}
       />
+
+      <footer className="app-footer">
+        <p className="app-footer-copy">© 2026 Tinted Technologies LLC. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
